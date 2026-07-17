@@ -35,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return const Scaffold(
       body: Center(
         child: Text(
-          'Task Management App',
+          AppConstants.appName,
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
       ),

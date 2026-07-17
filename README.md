@@ -1,27 +1,63 @@
-# Task Management App
+# AROICE Task Management App
 
-
-
-This was my first Flutter project. I come from a web background (HTML, CSS, some JavaScript) so there was a learning curve, but the structure started making sense once I understood how the layers connect.
+A cross-platform mobile task management application built with Flutter. Designed around a clean layered architecture with reactive state management via Riverpod, declarative navigation via GoRouter, and a fully decoupled data layer using Dio.
 
 ---
 
-## Project Overview
+## What It Does
 
-The app connects to `https://jsonplaceholder.typicode.com/todos` to get a list of tasks. Since JSONPlaceholder is a fake REST API, it doesn't actually save anything — add/edit/delete only update the local in-memory state. That's fine for this task since the goal was to learn Flutter, not build a real backend.
+Lane lets you manage your daily tasks on the go. You can view, add, edit, delete, and toggle tasks between complete and incomplete — all with immediate UI feedback and zero page reloads. The app connects to a REST API and keeps state reactively in memory during a session. Local on-device persistence (so your data survives app restarts) is the immediate next milestone.
 
 ---
 
 ## Features
 
-- View tasks fetched from the API
-- Add a new task (with validation)
-- Edit a task's title
-- Delete a task from the detail screen
-- Mark tasks as complete or incomplete
-- Loading, error, and empty states handled properly
-- Splash screen before home
-- Named routes using GoRouter
+- **View tasks** — fetched from the API, displayed in a scrollable list
+- **Add task** — create new tasks with input validation
+- **Edit task** — inline title editing on a dedicated screen
+- **Delete task** — remove tasks from the detail screen
+- **Toggle completion** — mark tasks complete or incomplete with a single tap
+- **Full state handling** — loading, error, and empty states properly handled
+- **Splash screen** — branded entry before the home screen
+- **Named routing** — clean URL-style navigation with GoRouter
+
+---
+
+## Tech Stack
+
+| Technology | Role |
+|---|---|
+| Flutter | UI framework (cross-platform — iOS, Android) |
+| Dart | Language |
+| Riverpod 3 (`AsyncNotifier`) | Reactive state management |
+| GoRouter | Declarative named routing |
+| Dio | HTTP client |
+| Material 3 | Design system |
+
+---
+
+## Architecture
+
+The app follows a strict **layered architecture** — each layer has exactly one responsibility and no layer reaches across boundaries.
+
+```
+┌──────────────────────────────────┐
+│      UI (Screens / Widgets)      │  ← renders, zero business logic
+├──────────────────────────────────┤
+│   Riverpod Provider (State)      │  ← owns state + all CRUD mutations
+├──────────────────────────────────┤
+│          Repository              │  ← parses raw HTTP responses into models
+├──────────────────────────────────┤
+│        Service (HTTP)            │  ← makes the actual Dio request
+├──────────────────────────────────┤
+│       External API / DB          │  ← data source (currently JSONPlaceholder)
+└──────────────────────────────────┘
+```
+
+Practical benefits of this structure:
+- Swapping Dio for another HTTP client only touches the service layer
+- Adding local persistence only touches the repository layer — the rest of the app is unaware of the change
+- The UI never knows or cares where data comes from
 
 ---
 
@@ -31,19 +67,19 @@ The app connects to `https://jsonplaceholder.typicode.com/todos` to get a list o
 lib/
 ├── main.dart
 ├── core/
-│   ├── constants/app_constants.dart   # app name, splash duration
-│   └── theme/app_theme.dart           # Material 3 light theme
+│   ├── constants/app_constants.dart     # App-wide constants (name, durations)
+│   └── theme/app_theme.dart             # Material 3 theme definition
 ├── models/
-│   └── task_model.dart                # Task class, fromJson, toJson, copyWith
+│   └── task_model.dart                  # Task entity — fromJson, toJson, copyWith
 ├── services/
-│   └── task_service.dart              # HTTP requests using Dio
+│   └── task_service.dart                # Dio HTTP calls — raw response only
 ├── repository/
-│   └── task_repository.dart           # Parses response into Task objects
+│   └── task_repository.dart             # Maps HTTP response → Task objects
 ├── providers/
-│   ├── task_provider.dart             # service and repository providers
-│   └── task_notifier.dart             # state + CRUD logic (AsyncNotifier)
+│   ├── task_provider.dart               # Provider definitions
+│   └── task_notifier.dart               # AsyncNotifier — state + CRUD methods
 ├── routes/
-│   └── app_router.dart                # all named routes
+│   └── app_router.dart                  # All named routes (GoRouter)
 ├── screens/
 │   ├── splash/
 │   ├── home/
@@ -61,38 +97,23 @@ lib/
 
 ---
 
-## Architecture
+## State Management
 
-The app is split into layers so each part has one job:
+State is managed via Riverpod 3's `AsyncNotifier`. The `TaskNotifier` class owns the task list and exposes all mutations (add, edit, delete, toggle). Every screen that needs tasks simply watches `taskNotifierProvider` and rebuilds automatically when state changes.
 
-```
-UI (Screens / Widgets)
-        ↓
-  Riverpod Provider  ←  holds and mutates state
-        ↓
-    Repository       ←  parses the HTTP response
-        ↓
-     Service         ←  makes the actual API call
-        ↓
-  JSONPlaceholder API
+```dart
+// In a widget's build() — subscribes to changes, rebuilds on update
+final tasks = ref.watch(taskNotifierProvider);
+
+// In a callback — one-time call, no subscription
+ref.read(taskNotifierProvider.notifier).addTask('Buy groceries');
 ```
 
-This way the UI never touches HTTP code directly, and if I ever swap Dio for another package, only the service layer changes.
+`AsyncValue` wraps state in loading / error / data states — handled cleanly with a single `.when()` call.
 
 ---
 
-## Packages Used
-
-| Package | Why |
-|---|---|
-| `flutter_riverpod ^3.0.0` | State management |
-| `go_router ^16.0.0` | Navigation with named routes |
-| `dio ^5.0.0` | HTTP client |
-| `flutter_lints ^6.0.0` | Lint rules / code quality |
-
----
-
-## Setup
+## Getting Started
 
 ```bash
 git clone https://github.com/Aryan-Techie/task_management_app.git
@@ -101,78 +122,34 @@ flutter pub get
 flutter run
 ```
 
-If the build breaks:
+**If the build breaks:**
 ```bash
 flutter clean
 flutter pub get
 flutter run
 ```
 
----
-
-## State Management
-
-I used Riverpod 3's `AsyncNotifier` pattern. The `TaskNotifier` class holds the task list and all the methods that change it (add, edit, delete, toggle). Any screen that needs tasks just watches `taskNotifierProvider` and rebuilds automatically when something changes.
-
-```dart
-// watch = subscribe to changes (use in build)
-final tasks = ref.watch(taskNotifierProvider);
-
-// read = one-time access (use inside onPressed etc.)
-ref.read(taskNotifierProvider.notifier).addTask('New task');
-```
-
-The `AsyncValue` type handles loading/error/data in one place — so you can't accidentally show data while it's still loading.
+**Requirements:** Flutter SDK `^3.10.7`. Run `flutter doctor` to verify your environment.
 
 ---
 
-## API
+## Roadmap
 
-Endpoint: `GET https://jsonplaceholder.typicode.com/todos`
+See [`docs/roadmap.md`](docs/roadmap.md) for the full planned feature list.
 
-Returns 200 todos. Each one looks like:
-```json
-{
-  "userId": 1,
-  "id": 1,
-  "title": "buy groceries",
-  "completed": false
-}
-```
-
-The flow: Dio fetches → Repository maps each item with `Task.fromJson()` → Notifier stores the list → UI displays it.
+**Immediate next milestone:** Local on-device persistence via Drift (SQLite) so task data survives app restarts without re-fetching from the API.
 
 ---
 
-## Challenges
+## Documentation
 
-**Riverpod v3 breaking change** — The task guide used `StateNotifier` which was removed in Riverpod 3. Took me a bit to realise I needed `AsyncNotifier` instead. Lesson: check the package version before following examples.
-
-**Methods placed outside the class** — `editTask` and `deleteTask` ended up outside the closing brace of `TaskNotifier` at one point. Flutter said `state` was undefined, which was confusing until I looked at the actual class structure.
-
-**ConsumerWidget vs StatelessWidget** — I didn't understand at first why changing to `ConsumerWidget` was necessary just to use `ref`. It clicked when I realised `ref` only exists inside Riverpod's widget types — same reason you can only call `setState` inside a `StatefulWidget`.
-
-**context.pop() vs context.go('/')** — I was using `go('/')` to go back which cleared the navigation stack. `pop()` is the right method when you just want to go back one screen.
-
----
-
-## Learnings
-
-- Flutter widgets are everything — layout, style, and logic all live in the widget tree
-- `ref.watch` in `build()`, `ref.read` in callbacks — mixing them up causes bugs
-- `AsyncValue.when(data, loading, error)` is a clean way to handle all three states without lots of if/else
-- GoRouter's `state.extra` is how you pass objects between screens
-- `flutter analyze` is very useful before running the app
+| Doc | What it covers |
+|---|---|
+| [`docs/architecture.md`](docs/architecture.md) | Layer breakdown, data flow diagrams |
+| [`docs/packages.md`](docs/packages.md) | Every package — what it is and why it was chosen |
+| [`docs/roadmap.md`](docs/roadmap.md) | Upcoming features and implementation priorities |
+| [`docs/flutter_for_web_devs.md`](docs/flutter_for_web_devs.md) | Flutter concepts mapped to HTML/CSS/JS equivalents |
 
 ---
 
-## Docs
-
-- [docs/architecture.md](docs/architecture.md) — detailed layer breakdown
-- [docs/packages.md](docs/packages.md) — why each package was chosen
-- [docs/task_checklist.md](docs/task_checklist.md) — what's done and what's not
-- [docs/flutter_for_web_devs.md](docs/flutter_for_web_devs.md) — Flutter mapped to HTML/CSS/JS concepts
-
----
-
-Built by Aryan — internship Flutter project, 2026.
+Built by Aryan · 2026

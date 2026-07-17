@@ -1,48 +1,75 @@
-# 🏗️ Architecture — Task Management App
+# Architecture — Lane Task Management App
 
 ## Overview
 
-This app follows a **layered architecture** pattern. Think of it like building a house:
-- The **foundation** = Models
-- The **plumbing** = Service + Repository
-- The **walls** = Providers (state)
-- The **rooms you see** = Screens
-- The **furniture** = Widgets
+Lane uses a **layered architecture** pattern. Each layer has a single, well-defined responsibility and communicates only with the layer directly adjacent to it. This is the same principle behind clean architecture and separation of concerns — if you swap out one layer, nothing else needs to change.
 
 ---
 
-## The 3 Data Layers
+## Layer Diagram
 
 ```
-UI (Screens/Widgets)
-        ↕
-  Provider (State)
-        ↕
-   Repository
-        ↕
-    Service (HTTP)
-        ↕
-  jsonplaceholder API
+┌──────────────────────────────────────────┐
+│           UI (Screens / Widgets)         │
+│  Renders data. Never calls APIs directly.│
+└────────────────────┬─────────────────────┘
+                     │ watch / read
+┌────────────────────▼─────────────────────┐
+│         Riverpod Provider (State)        │
+│  Owns the task list. All mutations here. │
+│  TaskNotifier (AsyncNotifier<List<Task>>)│
+└────────────────────┬─────────────────────┘
+                     │ calls
+┌────────────────────▼─────────────────────┐
+│              Repository                  │
+│  Parses raw responses into Task objects. │
+│  Source-agnostic: API or local DB today, │
+│  anything tomorrow.                      │
+└────────────────────┬─────────────────────┘
+                     │ calls
+┌────────────────────▼─────────────────────┐
+│           Service (HTTP / DB)            │
+│  Makes the actual Dio request.           │
+│  Returns raw Response objects only.      │
+└────────────────────┬─────────────────────┘
+                     │
+┌────────────────────▼─────────────────────┐
+│            External Data Source          │
+│  Currently: JSONPlaceholder REST API     │
+│  Next: Drift (SQLite) for local storage  │
+└──────────────────────────────────────────┘
 ```
 
-### 1. Service Layer (`lib/services/`)
-- Only job: **make HTTP requests**
-- Uses `Dio` to call the API
-- Returns raw `Response` objects
-- Knows nothing about the app
+---
+
+## Layer Breakdown
+
+### 1. Service Layer — `lib/services/`
+
+Only job: **make HTTP requests**.
+
+- Uses `Dio` to call the API endpoint
+- Returns raw `Response` objects — no parsing, no business logic
+- Completely unaware of the app's state or models
 
 ```dart
-// It just fetches. That's it.
+// Fetches raw data. Nothing more.
 Future<Response> getTasks() async {
   return await dio.get('https://jsonplaceholder.typicode.com/todos');
 }
 ```
 
-### 2. Repository Layer (`lib/repository/`)
-- Sits between Service and Provider
-- **Parses** the raw HTTP response into `Task` objects
-- If you ever switch from Dio to http package, only this layer changes
-- Knows about Models, not about the UI
+**Swapping HTTP clients** (e.g., Dio → http package) is contained entirely to this file.
+
+---
+
+### 2. Repository Layer — `lib/repository/`
+
+Sits between Service and Provider. Its job: **parse raw data into domain models**.
+
+- Calls the service, receives a raw response
+- Maps each JSON object into a typed `Task` using `Task.fromJson()`
+- When local persistence is added, this layer will also read/write to the local DB
 
 ```dart
 Future<List<Task>> getTasks() async {
@@ -51,40 +78,108 @@ Future<List<Task>> getTasks() async {
 }
 ```
 
-### 3. Provider Layer (`lib/providers/`)
-- The **brain** of the app
-- Holds the current list of tasks in memory
-- Every mutation (add, edit, delete, toggle) happens here
-- UI watches this and rebuilds automatically when state changes
+---
+
+### 3. Provider Layer — `lib/providers/`
+
+The **state owner** of the application.
+
+- Holds the current list of `Task` objects as reactive state
+- Exposes methods for every mutation: `addTask`, `editTask`, `deleteTask`, `toggleTask`
+- Uses Riverpod 3's `AsyncNotifier` — provides loading/error/data states automatically
+- Any widget watching the provider rebuilds when state changes — no manual `setState`
+
+```dart
+final taskNotifierProvider =
+    AsyncNotifierProvider<TaskNotifier, List<Task>>(TaskNotifier.new);
+
+class TaskNotifier extends AsyncNotifier<List<Task>> {
+  @override
+  Future<List<Task>> build() async {
+    return ref.read(taskRepositoryProvider).getTasks();
+  }
+
+  void addTask(String title) { ... }
+  void editTask(int id, String title) { ... }
+  void deleteTask(int id) { ... }
+  void toggleTask(int id) { ... }
+}
+```
 
 ---
 
-## Why This Structure?
+### 4. UI Layer — `lib/screens/` and `lib/widgets/`
 
-Coming from HTML/CSS/JS: imagine jQuery spaghetti vs React components with state. This is the Flutter equivalent of proper state management. Each layer has **one job** and doesn't know about the others. That's called **Separation of Concerns**.
+Purely responsible for rendering.
 
-| Layer | Equivalent in Web |
-|---|---|
-| Service | `fetch()` or `axios` call |
-| Repository | Data parsing / adapter |
-| Provider | React state / Redux store |
-| Screen | React component / page |
-| Widget | Reusable React component |
+- Screens watch `taskNotifierProvider` via `ref.watch()` and rebuild automatically
+- Widgets are dumb, reusable components — no state, no business logic
+- Calls provider methods via `ref.read()` in response to user actions
 
 ---
 
 ## Data Flow: Adding a Task
 
 ```
-User types title → taps "Save Task"
+User types title → taps "Save"
         ↓
-AddTaskScreen calls ref.read(taskNotifierProvider.notifier).addTask(title)
+AddTaskScreen calls:
+  ref.read(taskNotifierProvider.notifier).addTask(title)
         ↓
-TaskNotifier.addTask() creates new Task and prepends to state
+TaskNotifier.addTask() creates a new Task object,
+prepends it to the current state list
         ↓
-HomeScreen is watching taskNotifierProvider → automatically rebuilds
+HomeScreen is watching taskNotifierProvider
+→ Riverpod triggers a rebuild automatically
         ↓
-New task appears at top of list ✅
+New task appears at the top of the list ✅
 ```
 
-No page reload. No manual setState for the list. Just reactive state.
+No page reload. No manual list refresh. Pure reactive state.
+
+---
+
+## Data Flow: Loading Tasks (on App Start)
+
+```
+App starts → HomeScreen mounts → ref.watch(taskNotifierProvider)
+        ↓
+Provider's build() is called for the first time
+        ↓
+Calls TaskRepository.getTasks()
+        ↓
+Repository calls TaskService.getTasks() → Dio → API response
+        ↓
+Repository parses response.data into List<Task>
+        ↓
+Provider state = AsyncData(tasks)
+        ↓
+HomeScreen rebuilds, task list renders ✅
+```
+
+---
+
+## Why This Structure?
+
+| Concern | Handled by |
+|---|---|
+| Where does data come from? | Service layer only |
+| What shape is the data? | Repository layer only |
+| What is the current state? | Provider layer only |
+| How is the state displayed? | UI layer only |
+
+If any one of these answers changes, only that layer needs to be updated. The rest of the app is insulated.
+
+**Coming up:** When local persistence is added via Drift, the Repository layer will first check the local DB before hitting the network. The Provider and UI layers will be completely untouched.
+
+---
+
+## Equivalent Web Concepts
+
+| Flutter Layer | Web Equivalent |
+|---|---|
+| Service | `fetch()` / `axios` call |
+| Repository | Data adapter / API parser |
+| Provider | Redux store / React Context |
+| Screen | React page component |
+| Widget | Reusable React component |
