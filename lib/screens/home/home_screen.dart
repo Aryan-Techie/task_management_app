@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -40,6 +41,14 @@ class HomeScreen extends ConsumerWidget {
           message: error.toString(),
         ),
       ),
+    
+    floatingActionButton: FloatingActionButton(
+  onPressed: () {
+    context.push('/add-task');
+  },
+  child: const Icon(Icons.add),
+),
+    
     );
   }
 }

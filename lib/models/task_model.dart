@@ -28,4 +28,18 @@ class Task {
       'completed': completed,
     };
   }
+
+  Task copyWith({
+    int? id,
+    int? userId,
+    String? title,
+    bool? completed,
+  }) {
+    return Task(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      completed: completed ?? this.completed,
+    );
+  }
 }

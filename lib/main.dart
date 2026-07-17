@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'screens/home/home_screen.dart';
+import 'routes/app_router.dart';
 
 void main() {
   runApp(
@@ -15,8 +15,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-home: HomeScreen(),
-);
+    return MaterialApp.router(
+      routerConfig: appRouter,
+    );
   }
 }

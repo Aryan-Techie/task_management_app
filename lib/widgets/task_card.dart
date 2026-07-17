@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
 import '../models/task_model.dart';
 
 class TaskCard extends StatelessWidget {
@@ -13,6 +15,12 @@ class TaskCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
+        onTap: () {
+          context.push(
+            '/task-detail',
+            extra: task,
+          );
+        },
         title: Text(task.title),
         trailing: Icon(
           task.completed
