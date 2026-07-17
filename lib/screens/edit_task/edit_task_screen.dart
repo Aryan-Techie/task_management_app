@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../models/task_model.dart';
 import '../../providers/task_notifier.dart';
+import '../../widgets/custom_text_field.dart';
+import '../../widgets/primary_button.dart';
 
 class EditTaskScreen extends ConsumerStatefulWidget {
   final Task task;
@@ -38,14 +40,15 @@ class _EditTaskScreenState extends ConsumerState<EditTaskScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            TextField(
+            CustomTextField(
               controller: titleController,
-              decoration: const InputDecoration(labelText: 'Task Title'),
+              label: 'Task Title',
             ),
 
             const SizedBox(height: 20),
 
-            ElevatedButton(
+            PrimaryButton(
+              text: 'Update Task',
               onPressed: () {
                 ref
                     .read(taskNotifierProvider.notifier)
@@ -56,7 +59,6 @@ class _EditTaskScreenState extends ConsumerState<EditTaskScreen> {
 
                 context.pop();
               },
-              child: const Text('Update Task'),
             ),
           ],
         ),

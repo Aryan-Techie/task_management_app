@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../providers/task_notifier.dart';
+import '../../widgets/custom_text_field.dart';
+import '../../widgets/primary_button.dart';
 
 class AddTaskScreen extends ConsumerStatefulWidget {
   const AddTaskScreen({super.key});
@@ -30,16 +32,15 @@ class _AddTaskScreenState extends ConsumerState<AddTaskScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            TextField(
+            CustomTextField(
               controller: titleController,
-              decoration: const InputDecoration(
-                labelText: 'Task Title',
-              ),
+              label: 'Task Title',
             ),
 
             const SizedBox(height: 20),
 
-            ElevatedButton(
+            PrimaryButton(
+              text: 'Save Task',
               onPressed: () {
                 if (titleController.text.trim().isEmpty) return;
 
@@ -49,7 +50,6 @@ class _AddTaskScreenState extends ConsumerState<AddTaskScreen> {
 
                 context.pop();
               },
-              child: const Text('Save Task'),
             ),
           ],
         ),
