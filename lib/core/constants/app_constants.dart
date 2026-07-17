@@ -12,9 +12,14 @@ class AppConstants {
   static const brandWebsite = 'https://aroice.in';
 
   // Developer
-  static const developerName = 'Aryan';
+  static const developerName = 'Aryan Techie';
   static const developerGithub = 'https://github.com/aryan-techie';
 
   // how long the splash screen stays before going to home
   static const splashDuration = 2;
+
+  // About page constants
+  static const aboutVersion = 'Version $appVersion (Build $appBuild)';
+  static const aboutDescription = 'A simple task manager app.';
+  static const aboutLicense = 'MIT License';
 }

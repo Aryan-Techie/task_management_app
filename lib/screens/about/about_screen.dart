@@ -126,6 +126,8 @@ class AboutScreen extends StatelessWidget {
               icon: Icons.person_outline_rounded,
               title: AppConstants.developerName,
               subtitle: 'Developer',
+              onTap: () => _launch(AppConstants.developerGithub),
+              isLink: true,
             ),
 
             const SizedBox(height: 8),
@@ -136,37 +138,6 @@ class AboutScreen extends StatelessWidget {
               subtitle: AppConstants.brandWebsite.replaceFirst('https://', ''),
               onTap: () => _launch(AppConstants.brandWebsite),
               isLink: true,
-            ),
-
-            const SizedBox(height: 8),
-
-            _InfoTile(
-              icon: Icons.code_rounded,
-              title: 'Source Code',
-              subtitle: 'github.com/aryan-techie',
-              onTap: () => _launch(AppConstants.developerGithub),
-              isLink: true,
-            ),
-
-            const SizedBox(height: 28),
-            const Divider(),
-            const SizedBox(height: 28),
-
-            // ── Tech section ─────────────────────────────────────────────
-            _SectionLabel(label: 'Built with'),
-            const SizedBox(height: 16),
-
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              alignment: WrapAlignment.center,
-              children: const [
-                _TechChip(label: 'Flutter'),
-                _TechChip(label: 'Riverpod 3'),
-                _TechChip(label: 'GoRouter'),
-                _TechChip(label: 'Dio'),
-                _TechChip(label: 'Material 3'),
-              ],
             ),
 
             const SizedBox(height: 48),
@@ -282,33 +253,6 @@ class _InfoTile extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _TechChip extends StatelessWidget {
-  final String label;
-  const _TechChip({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: colorScheme.outlineVariant,
-          width: 1,
-        ),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
       ),
     );
   }
