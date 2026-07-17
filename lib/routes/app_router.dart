@@ -9,6 +9,7 @@
 import 'package:go_router/go_router.dart';
 
 import '../models/task_model.dart';
+import '../screens/about/about_screen.dart';
 import '../screens/add_task/add_task_screen.dart';
 import '../screens/edit_task/edit_task_screen.dart';
 import '../screens/home/home_screen.dart';
@@ -57,6 +58,11 @@ final GoRouter appRouter = GoRouter(
           task: task,
         );
       },
+    ),
+
+    GoRoute(
+      path: '/about',
+      builder: (context, state) => const AboutScreen(),
     ),
   ],
 );

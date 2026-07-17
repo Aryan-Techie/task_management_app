@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/constants/app_constants.dart';
 import '../../providers/task_notifier.dart';
 import '../../widgets/task_card.dart';
 import '../../widgets/loading_widget.dart';
@@ -23,7 +24,14 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tasks'),
+        title: const Text(AppConstants.appName),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline_rounded),
+            tooltip: 'About',
+            onPressed: () => context.push('/about'),
+          ),
+        ],
       ),
 
       // .when() handles all three states cleanly — no manual if/else needed
