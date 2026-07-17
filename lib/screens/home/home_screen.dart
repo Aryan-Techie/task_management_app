@@ -2,7 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../providers/task_provider.dart';
+import '../../providers/task_notifier.dart';
 import '../../widgets/task_card.dart';
 import '../../widgets/loading_widget.dart';
 import '../../widgets/error_widget_custom.dart';
@@ -13,7 +13,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tasks = ref.watch(tasksProvider);
+    final tasks = ref.watch(taskNotifierProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -32,6 +32,11 @@ class HomeScreen extends ConsumerWidget {
 
               return TaskCard(
                 task: task,
+                onToggle: () {
+                  ref
+                      .read(taskNotifierProvider.notifier)
+                      .toggleTask(task.id);
+                },
               );
             },
           );

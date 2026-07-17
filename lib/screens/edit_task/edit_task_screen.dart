@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../models/task_model.dart';
+import '../../providers/task_notifier.dart';
 
-class EditTaskScreen extends StatefulWidget {
+class EditTaskScreen extends ConsumerStatefulWidget {
   final Task task;
 
   const EditTaskScreen({super.key, required this.task});
 
   @override
-  State<EditTaskScreen> createState() => _EditTaskScreenState();
+  ConsumerState<EditTaskScreen> createState() => _EditTaskScreenState();
 }
 
-class _EditTaskScreenState extends State<EditTaskScreen> {
+class _EditTaskScreenState extends ConsumerState<EditTaskScreen> {
   late TextEditingController titleController;
 
   @override
@@ -42,7 +45,19 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
 
             const SizedBox(height: 20),
 
-            ElevatedButton(onPressed: () {}, child: const Text('Update Task')),
+            ElevatedButton(
+              onPressed: () {
+                ref
+                    .read(taskNotifierProvider.notifier)
+                    .editTask(
+                      widget.task.id,
+                      titleController.text,
+                    );
+
+                context.pop();
+              },
+              child: const Text('Update Task'),
+            ),
           ],
         ),
       ),

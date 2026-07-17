@@ -5,10 +5,12 @@ import '../models/task_model.dart';
 
 class TaskCard extends StatelessWidget {
   final Task task;
+  final VoidCallback onToggle;
 
   const TaskCard({
     super.key,
     required this.task,
+    required this.onToggle,
   });
 
   @override
@@ -22,10 +24,13 @@ class TaskCard extends StatelessWidget {
           );
         },
         title: Text(task.title),
-        trailing: Icon(
-          task.completed
-              ? Icons.check_circle
-              : Icons.circle_outlined,
+        trailing: IconButton(
+          onPressed: onToggle,
+          icon: Icon(
+            task.completed
+                ? Icons.check_circle
+                : Icons.circle_outlined,
+          ),
         ),
       ),
     );

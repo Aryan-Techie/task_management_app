@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-class AddTaskScreen extends StatefulWidget {
+import '../../providers/task_notifier.dart';
+
+class AddTaskScreen extends ConsumerStatefulWidget {
   const AddTaskScreen({super.key});
 
   @override
-  State<AddTaskScreen> createState() => _AddTaskScreenState();
+  ConsumerState<AddTaskScreen> createState() => _AddTaskScreenState();
 }
 
-class _AddTaskScreenState extends State<AddTaskScreen> {
+class _AddTaskScreenState extends ConsumerState<AddTaskScreen> {
   final titleController = TextEditingController();
 
   @override
@@ -36,7 +40,15 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             const SizedBox(height: 20),
 
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                if (titleController.text.trim().isEmpty) return;
+
+                ref
+                    .read(taskNotifierProvider.notifier)
+                    .addTask(titleController.text.trim());
+
+                context.pop();
+              },
               child: const Text('Save Task'),
             ),
           ],

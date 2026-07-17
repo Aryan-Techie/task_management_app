@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../models/task_model.dart';
 
-class TaskDetailScreen extends StatelessWidget {
+import '../../models/task_model.dart';
+import '../../providers/task_notifier.dart';
+
+class TaskDetailScreen extends ConsumerWidget {
   final Task task;
 
   const TaskDetailScreen({
@@ -11,21 +14,31 @@ class TaskDetailScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Task Details'),
         actions: [
           IconButton(
             onPressed: () {
+              ref
+                  .read(taskNotifierProvider.notifier)
+                  .deleteTask(task.id);
+
+              context.pop();
+            },
+            icon: const Icon(Icons.delete),
+          ),
+          IconButton(
+            onPressed: () {
               context.push(
                 '/edit-task',
                 extra: task,
               );
-    },
-    icon: const Icon(Icons.edit),
-  ),
-],
+            },
+            icon: const Icon(Icons.edit),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
