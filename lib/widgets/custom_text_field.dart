@@ -1,3 +1,6 @@
+// reusable text field with an outline border
+// both add and edit screens use this instead of raw TextField
+// makes it easy to change the style in one place later
 
 import 'package:flutter/material.dart';
 

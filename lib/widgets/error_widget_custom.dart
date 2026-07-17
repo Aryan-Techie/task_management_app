@@ -1,3 +1,5 @@
+// shown when the API call fails
+// message comes from the error object so it's always relevant to what actually went wrong
 import 'package:flutter/material.dart';
 
 class ErrorWidgetCustom extends StatelessWidget {

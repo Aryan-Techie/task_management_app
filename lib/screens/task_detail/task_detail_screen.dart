@@ -1,3 +1,7 @@
+// shows the full details of a single task
+// the task object is passed in from HomeScreen via GoRouter's state.extra
+// ConsumerWidget is needed here because we call ref.read to delete
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -19,16 +23,19 @@ class TaskDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Task Details'),
         actions: [
+          // delete button — removes task and goes back to home
           IconButton(
             onPressed: () {
               ref
                   .read(taskNotifierProvider.notifier)
                   .deleteTask(task.id);
 
-              context.pop();
+              context.pop(); // go back after deleting
             },
             icon: const Icon(Icons.delete),
           ),
+
+          // edit button — navigates to edit screen, passing the task as extra
           IconButton(
             onPressed: () {
               context.push(
@@ -63,6 +70,7 @@ class TaskDetailScreen extends ConsumerWidget {
 
             const SizedBox(height: 8),
 
+            // chip changes label based on completed status
             Chip(
               label: Text(
                 task.completed

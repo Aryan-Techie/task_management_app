@@ -1,3 +1,7 @@
+// screen for editing an existing task's title
+// ConsumerStatefulWidget because we need both a TextEditingController (stateful)
+// and access to ref (consumer) at the same time
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,11 +27,13 @@ class _EditTaskScreenState extends ConsumerState<EditTaskScreen> {
   void initState() {
     super.initState();
 
+    // pre-fill the text field with the existing task title
     titleController = TextEditingController(text: widget.task.title);
   }
 
   @override
   void dispose() {
+    // always dispose controllers to avoid memory leaks
     titleController.dispose();
     super.dispose();
   }
@@ -50,6 +56,7 @@ class _EditTaskScreenState extends ConsumerState<EditTaskScreen> {
             PrimaryButton(
               text: 'Update Task',
               onPressed: () {
+                // send the updated title to the notifier
                 ref
                     .read(taskNotifierProvider.notifier)
                     .editTask(
@@ -57,7 +64,7 @@ class _EditTaskScreenState extends ConsumerState<EditTaskScreen> {
                       titleController.text,
                     );
 
-                context.pop();
+                context.pop(); // go back after saving
               },
             ),
           ],

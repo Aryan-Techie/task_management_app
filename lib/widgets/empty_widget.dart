@@ -1,3 +1,4 @@
+// shown when the task list is empty (either API returned nothing or all tasks deleted)
 import 'package:flutter/material.dart';
 
 class EmptyWidget extends StatelessWidget {

@@ -1,3 +1,4 @@
+// shown while tasks are loading from the API
 import 'package:flutter/material.dart';
 
 class LoadingWidget extends StatelessWidget {

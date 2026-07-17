@@ -1,3 +1,7 @@
+// first screen the user sees — just shows the app name for a couple seconds
+// then automatically redirects to the home screen
+// using StatefulWidget because initState is needed for the delayed navigation
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -15,6 +19,8 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
+    // wait for splashDuration seconds then go to home
+    // checking mounted first to avoid navigating on a widget that's already been removed
     Future.delayed(
       const Duration(seconds: AppConstants.splashDuration),
       () {

@@ -1,3 +1,7 @@
+// screen for creating a new task
+// using ConsumerStatefulWidget because I need a TextEditingController (needs dispose)
+// AND access to ref to call the notifier
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,6 +22,7 @@ class _AddTaskScreenState extends ConsumerState<AddTaskScreen> {
 
   @override
   void dispose() {
+    // always clean up the controller when the screen is removed
     titleController.dispose();
     super.dispose();
   }
@@ -42,13 +47,22 @@ class _AddTaskScreenState extends ConsumerState<AddTaskScreen> {
             PrimaryButton(
               text: 'Save Task',
               onPressed: () {
-                if (titleController.text.trim().isEmpty) return;
+                // show snackbar if field is empty instead of silently doing nothing
+                if (titleController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Title cannot be empty'),
+                    ),
+                  );
+                  return;
+                }
 
+                // trim() removes any accidental leading/trailing spaces
                 ref
                     .read(taskNotifierProvider.notifier)
                     .addTask(titleController.text.trim());
 
-                context.pop();
+                context.pop(); // go back to home after saving
               },
             ),
           ],

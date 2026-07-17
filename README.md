@@ -1,310 +1,178 @@
-# 📋 Task Management App
+# Task Management App
 
-> Flutter project — built as part of a Flutter internship task.  
-> This app lets you view, add, edit, delete, and mark tasks as complete using the [JSONPlaceholder](https://jsonplaceholder.typicode.com/todos) API.
 
----
 
-## 1. 🗂️ Project Overview
-
-This is a **Task Management App** built with Flutter. It fetches tasks from a public fake REST API, displays them in a list, and lets you manage them locally (add, edit, delete, toggle complete).
-
-I built this to learn Flutter fundamentals — coming from a web background (HTML, CSS, JavaScript), this was my first time working with Dart and Flutter's widget system.
-
-**Live API used:** `https://jsonplaceholder.typicode.com/todos`  
-*(Note: jsonplaceholder doesn't actually save your changes — it just pretends to. Add/Edit/Delete only update the in-memory state.)*
+This was my first Flutter project. I come from a web background (HTML, CSS, some JavaScript) so there was a learning curve, but the structure started making sense once I understood how the layers connect.
 
 ---
 
-## 2. ✨ Features
+## Project Overview
 
-| Feature | Status |
-|---|---|
-| View all tasks from API | ✅ Done |
-| Add a new task | ✅ Done |
-| Edit a task's title | ✅ Done |
-| Delete a task | ✅ Done |
-| Mark task as complete / incomplete | ✅ Done |
-| Loading state while fetching | ✅ Done |
-| Error state if API fails | ✅ Done |
-| Empty state if no tasks | ✅ Done |
-| Splash screen | ✅ Done |
-| Named routes with GoRouter | ✅ Done |
-| Light theme (Material 3) | ✅ Done |
-| Dark mode | ❌ Not yet |
-| Offline storage | ❌ Not yet |
-| Filtering / Sorting | ❌ Not yet |
+The app connects to `https://jsonplaceholder.typicode.com/todos` to get a list of tasks. Since JSONPlaceholder is a fake REST API, it doesn't actually save anything — add/edit/delete only update the local in-memory state. That's fine for this task since the goal was to learn Flutter, not build a real backend.
 
 ---
 
-## 3. 🏗️ Architecture
+## Features
 
-The app uses a **layered / clean architecture** approach:
-
-```
-UI Layer (Screens + Widgets)
-         ↕
-  State Layer (Riverpod Providers)
-         ↕
-  Repository Layer (Parsing)
-         ↕
-  Service Layer (HTTP / Dio)
-         ↕
-  JSONPlaceholder API
-```
-
-Each layer has one job and doesn't know about the layers above it.  
-→ See [docs/architecture.md](docs/architecture.md) for a detailed explanation.
+- View tasks fetched from the API
+- Add a new task (with validation)
+- Edit a task's title
+- Delete a task from the detail screen
+- Mark tasks as complete or incomplete
+- Loading, error, and empty states handled properly
+- Splash screen before home
+- Named routes using GoRouter
 
 ---
 
-## 4. 📁 Folder Structure
+## Folder Structure
 
 ```
 lib/
-├── main.dart                   # App entry point, sets up ProviderScope + router + theme
-│
+├── main.dart
 ├── core/
-│   ├── constants/
-│   │   └── app_constants.dart  # App-wide constants (app name, splash duration)
-│   └── theme/
-│       └── app_theme.dart      # ThemeData — Material 3 light theme
-│
+│   ├── constants/app_constants.dart   # app name, splash duration
+│   └── theme/app_theme.dart           # Material 3 light theme
 ├── models/
-│   └── task_model.dart         # Task class with fromJson, toJson, copyWith
-│
+│   └── task_model.dart                # Task class, fromJson, toJson, copyWith
 ├── services/
-│   └── task_service.dart       # Raw HTTP calls using Dio
-│
+│   └── task_service.dart              # HTTP requests using Dio
 ├── repository/
-│   └── task_repository.dart    # Parses HTTP responses into Task objects
-│
+│   └── task_repository.dart           # Parses response into Task objects
 ├── providers/
-│   ├── task_provider.dart      # taskRepositoryProvider, taskServiceProvider
-│   └── task_notifier.dart      # taskNotifierProvider + TaskNotifier (AsyncNotifier)
-│
+│   ├── task_provider.dart             # service and repository providers
+│   └── task_notifier.dart             # state + CRUD logic (AsyncNotifier)
 ├── routes/
-│   └── app_router.dart         # All named routes using GoRouter
-│
+│   └── app_router.dart                # all named routes
 ├── screens/
 │   ├── splash/
-│   │   └── splash_screen.dart  # 2-second intro screen → navigates to Home
 │   ├── home/
-│   │   └── home_screen.dart    # Task list with loading/error/empty states
 │   ├── add_task/
-│   │   └── add_task_screen.dart
 │   ├── edit_task/
-│   │   └── edit_task_screen.dart
 │   └── task_detail/
-│       └── task_detail_screen.dart
-│
 └── widgets/
-    ├── task_card.dart           # ListTile card for each task
-    ├── primary_button.dart      # Full-width ElevatedButton wrapper
-    ├── custom_text_field.dart   # TextField with OutlineInputBorder
-    ├── loading_widget.dart      # CircularProgressIndicator centered
-    ├── error_widget_custom.dart # Error message display
-    └── empty_widget.dart        # Empty state message
+    ├── task_card.dart
+    ├── primary_button.dart
+    ├── custom_text_field.dart
+    ├── loading_widget.dart
+    ├── error_widget_custom.dart
+    └── empty_widget.dart
 ```
 
 ---
 
-## 5. 📦 Packages Used
+## Architecture
 
-| Package | Version | Purpose |
-|---|---|---|
-| `flutter_riverpod` | ^3.0.0 | State management |
-| `go_router` | ^16.0.0 | Navigation & named routes |
-| `dio` | ^5.0.0 | HTTP client for API calls |
-| `flutter_lints` | ^6.0.0 | Code quality / linting rules |
+The app is split into layers so each part has one job:
 
-→ See [docs/packages.md](docs/packages.md) for detailed explanations of each.
+```
+UI (Screens / Widgets)
+        ↓
+  Riverpod Provider  ←  holds and mutates state
+        ↓
+    Repository       ←  parses the HTTP response
+        ↓
+     Service         ←  makes the actual API call
+        ↓
+  JSONPlaceholder API
+```
+
+This way the UI never touches HTTP code directly, and if I ever swap Dio for another package, only the service layer changes.
 
 ---
 
-## 6. 🚀 Setup Instructions
+## Packages Used
 
-### Prerequisites
-Make sure you have Flutter installed. Check with:
+| Package | Why |
+|---|---|
+| `flutter_riverpod ^3.0.0` | State management |
+| `go_router ^16.0.0` | Navigation with named routes |
+| `dio ^5.0.0` | HTTP client |
+| `flutter_lints ^6.0.0` | Lint rules / code quality |
+
+---
+
+## Setup
+
 ```bash
-flutter doctor
-```
-Everything should show ✅ (at least Flutter and one device target).
-
-### Steps
-
-```bash
-# 1. Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/Aryan-Techie/task_management_app.git
 cd task_management_app
-
-# 2. Install dependencies
 flutter pub get
-
-# 3. Run the app
 flutter run
 ```
 
-To run on a specific device:
+If the build breaks:
 ```bash
-flutter devices          # list available devices
-flutter run -d chrome    # run in browser
-flutter run -d <device>  # run on specific device
-```
-
-### If something breaks
-```bash
-flutter clean            # clears build cache
-flutter pub get          # reinstall packages
-flutter run              # try again
+flutter clean
+flutter pub get
+flutter run
 ```
 
 ---
 
-## 7. 🧠 State Management
+## State Management
 
-This app uses **Riverpod 3** with the `AsyncNotifier` pattern.
-
-### Why Riverpod?
-- No `setState` for shared state
-- Automatically handles loading/error/data states with `AsyncValue`
-- Widgets only rebuild when the data they care about changes
-- Testable — providers can be overridden in tests
-
-### How it works
+I used Riverpod 3's `AsyncNotifier` pattern. The `TaskNotifier` class holds the task list and all the methods that change it (add, edit, delete, toggle). Any screen that needs tasks just watches `taskNotifierProvider` and rebuilds automatically when something changes.
 
 ```dart
-// 1. Define the notifier — holds state + all mutations
-class TaskNotifier extends AsyncNotifier<List<Task>> {
-  @override
-  Future<List<Task>> build() async {
-    // runs on first access — fetches from API
-    return ref.read(taskRepositoryProvider).getTasks();
-  }
-
-  void addTask(String title) { ... }
-  void editTask(int id, String title) { ... }
-  void deleteTask(int id) { ... }
-  void toggleTask(int id) { ... }
-}
-
-// 2. Create the provider
-final taskNotifierProvider = AsyncNotifierProvider<TaskNotifier, List<Task>>(TaskNotifier.new);
-
-// 3. Watch in a widget — rebuilds automatically when tasks change
+// watch = subscribe to changes (use in build)
 final tasks = ref.watch(taskNotifierProvider);
 
-// 4. Call mutations
-ref.read(taskNotifierProvider.notifier).addTask('Buy milk');
+// read = one-time access (use inside onPressed etc.)
+ref.read(taskNotifierProvider.notifier).addTask('New task');
 ```
 
-`ref.watch` = subscribe and rebuild on change  
-`ref.read` = one-time access, doesn't rebuild (used inside callbacks)
+The `AsyncValue` type handles loading/error/data in one place — so you can't accidentally show data while it's still loading.
 
 ---
 
-## 8. 🌐 API Information
+## API
 
-**Base URL:** `https://jsonplaceholder.typicode.com`  
-**Endpoint used:** `GET /todos`  
-**Returns:** Array of 200 fake todo items
+Endpoint: `GET https://jsonplaceholder.typicode.com/todos`
 
-### Sample Response
-
+Returns 200 todos. Each one looks like:
 ```json
 {
   "userId": 1,
   "id": 1,
-  "title": "delectus aut autem",
+  "title": "buy groceries",
   "completed": false
 }
 ```
 
-### How the app handles it
-
-```
-GET /todos → Dio response → TaskRepository.getTasks()
-  → Task.fromJson(each item) → List<Task> → AsyncData(tasks) → UI
-```
-
-> ⚠️ **Important:** JSONPlaceholder is a fake API. POST/PUT/DELETE return
-> fake success responses but don't actually persist any data. All add/edit/delete 
-> operations only update the **in-memory state** in the app.
+The flow: Dio fetches → Repository maps each item with `Task.fromJson()` → Notifier stores the list → UI displays it.
 
 ---
 
-## 9. Challenges Faced
+## Challenges
 
-### 1. Riverpod version confusion
-The task instructions used `StateNotifier` / `StateNotifierProvider` syntax, but the project had `flutter_riverpod: ^3.0.0` installed — and **StateNotifier was removed in v3**. I had to figure out that `AsyncNotifier` is the new way.
+**Riverpod v3 breaking change** — The task guide used `StateNotifier` which was removed in Riverpod 3. Took me a bit to realise I needed `AsyncNotifier` instead. Lesson: check the package version before following examples.
 
-**What I learned:** Always check the package version before copying code examples. pub.dev shows version-specific documentation.
+**Methods placed outside the class** — `editTask` and `deleteTask` ended up outside the closing brace of `TaskNotifier` at one point. Flutter said `state` was undefined, which was confusing until I looked at the actual class structure.
 
-### 2. `editTask` and `deleteTask` outside the class body
-At one point, the methods were accidentally placed outside the closing `}` of the `TaskNotifier` class. Flutter gave confusing errors like "undefined identifier: state". 
+**ConsumerWidget vs StatelessWidget** — I didn't understand at first why changing to `ConsumerWidget` was necessary just to use `ref`. It clicked when I realised `ref` only exists inside Riverpod's widget types — same reason you can only call `setState` inside a `StatefulWidget`.
 
-**How I debugged:** Read the error carefully, noticed it said `state` wasn't defined (which only exists inside a `Notifier` class), then looked at the class structure and found the methods were outside.
-
-### 3. Broken `createState()` in AddTaskScreen
-A partial conversion left the file with a malformed override block that wasn't valid Dart syntax at all. 
-
-**How I debugged:** The Dart analyzer underlined the whole file red. Looked at the specific error line, realised the `createState` override was incomplete.
-
-### 4. Understanding `ConsumerWidget` vs `StatelessWidget`
-Took me a while to understand *why* I needed to change `StatelessWidget` to `ConsumerWidget`. 
-
-**The "aha" moment:** `ref` (the Riverpod handle) is only available if you extend a Riverpod widget class. Just like you can only use `this.setState` inside a `StatefulWidget` — `ref` is only inside `ConsumerWidget` / `ConsumerStatefulWidget`.
-
-### 5. `context.pop()` vs `context.go()`
-I kept accidentally using `go('/')` when going back, which would clear the whole back stack. `pop()` is the right choice when you just want to go back one screen.
+**context.pop() vs context.go('/')** — I was using `go('/')` to go back which cleared the navigation stack. `pop()` is the right method when you just want to go back one screen.
 
 ---
 
-## 10. 📚 Learnings
+## Learnings
 
-### Flutter Fundamentals
-- **Everything is a Widget.** Layout, style, and structure are all widgets nested inside each other.
-- **Widget tree rebuilds are controlled.** You decide which widgets watch state and rebuild.
-- **`StatelessWidget`** = no internal state (like a pure function component in React)
-- **`StatefulWidget`** = has internal state managed with `setState` (like React class components)
-- **`ConsumerWidget`** = StatelessWidget that can read Riverpod providers
-
-### Architecture
-- **Separation of Concerns** makes code easy to change. When I wanted to swap how data is fetched, only the Service layer needed to change.
-- The **Repository pattern** means my UI never directly touches HTTP code.
-- **AsyncValue** is brilliant — it wraps loading/error/data states in one type, so you can't accidentally show data when it's still loading.
-
-### State Management  
-- `ref.watch` in `build()` method — reactive, rebuilds widget on change
-- `ref.read` in callbacks (`onPressed`, etc.) — one-time read, no rebuild
-- Never use `ref.watch` inside a callback — it won't work as expected
-
-### Routing
-- GoRouter is declarative — define routes once, navigate from anywhere with `context.go()`
-- `state.extra` is how you pass complex objects (like a `Task`) to the next screen
-- Always cast `state.extra` with `as Task` — it's typed as `Object?`
-
-### Debugging Skills I Picked Up
-- Reading Flutter's verbose error messages carefully — the answer is usually in there
-- Using `print()` / `debugPrint()` to trace data flow
-- Widget Inspector in Flutter DevTools to see the actual widget tree
-- `flutter analyze` to catch errors before running
+- Flutter widgets are everything — layout, style, and logic all live in the widget tree
+- `ref.watch` in `build()`, `ref.read` in callbacks — mixing them up causes bugs
+- `AsyncValue.when(data, loading, error)` is a clean way to handle all three states without lots of if/else
+- GoRouter's `state.extra` is how you pass objects between screens
+- `flutter analyze` is very useful before running the app
 
 ---
 
-## 📁 Documentation Folder
+## Docs
 
-| File | What it covers |
-|---|---|
-| [docs/architecture.md](docs/architecture.md) | Layered architecture, data flow diagrams |
-| [docs/packages.md](docs/packages.md) | Each package explained in detail |
-| [docs/flutter_for_web_devs.md](docs/flutter_for_web_devs.md) | Flutter concepts mapped to HTML/CSS/JS |
-| [docs/task_checklist.md](docs/task_checklist.md) | What's done ✅ and what's remaining ❌ |
+- [docs/architecture.md](docs/architecture.md) — detailed layer breakdown
+- [docs/packages.md](docs/packages.md) — why each package was chosen
+- [docs/task_checklist.md](docs/task_checklist.md) — what's done and what's not
+- [docs/flutter_for_web_devs.md](docs/flutter_for_web_devs.md) — Flutter mapped to HTML/CSS/JS concepts
 
 ---
 
-## 👨‍💻 About
-
-Built by Aryan as a Flutter internship project.  
-
-> *"The goal is understanding, not just completing the task."*
+Built by Aryan — internship Flutter project, 2026.
