@@ -1,0 +1,110 @@
+# -------------------------------------------------------------------------
+# Flutter & Dart
+# -------------------------------------------------------------------------
+# https://dart.dev/guides/libraries/private-files
+
+# Packages and dependency resolution files
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+
+# Web related
+.developer_ui_state
+
+# Symbolication and Obfuscation outputs
+app.*.symbols
+app.*.map.json
+
+# -------------------------------------------------------------------------
+# Android
+# -------------------------------------------------------------------------
+# Android Studio and Gradle files
+.gradle/
+/android/app/debug/
+/android/app/profile/
+/android/app/release/
+
+# Local configuration files (contains local paths, SDK locations, etc.)
+/android/local.properties
+
+# Key stores and signing credentials
+*.keystore
+*.jks
+*.p12
+/android/key.properties
+
+# Gradle Build Cache
+.gradle/
+
+# -------------------------------------------------------------------------
+# iOS and macOS
+# -------------------------------------------------------------------------
+# Xcode user specific settings and workspaces
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Pods/
+**/macos/Flutter/ephemeral/
+**/windows/flutter/ephemeral/
+**/linux/flutter/ephemeral/
+
+# Xcode personal settings
+.sandbox.log
+*.mode1v3
+*.mode2v3
+*.nib
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# -------------------------------------------------------------------------
+# IDEs and Editors
+# -------------------------------------------------------------------------
+# IntelliJ/Android Studio
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code (uncomment if you want to ignore VS Code settings)
+# .vscode/
+
+# Other editors
+*.swp
+*.swo
+*~
+
+# -------------------------------------------------------------------------
+# Environment & Secrets
+# -------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# -------------------------------------------------------------------------
+# Operating Systems & System Files
+# -------------------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon\r
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# -------------------------------------------------------------------------
+# Logs and temporary files
+# -------------------------------------------------------------------------
+*.log
+*.log.*
+.history
+migrate_working_dir/
